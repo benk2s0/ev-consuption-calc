@@ -1,13 +1,15 @@
 <!DOCTYPE html>
-<html lang="pt-PT">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        
+    <title>EV Calc</title>
     <link rel="icon" type="image/png" href="icone.png">
     <link rel="apple-touch-icon" href="icone.png">
-    
-    <title>Calculadora de Autonomia VE</title>
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#f1f5f9">
+    <meta name="mobile-web-app-capable" content="yes">
     <style>
         :root {
             --bg-color: #f1f5f9;
@@ -18,6 +20,8 @@
             --primary-light: #eff6ff;
             --success: #10b981;
             --success-light: #ecfdf5;
+            --warning: #f59e0b;
+            --warning-light: #fffbeb;
             --border: #e2e8f0;
         }
 
@@ -39,10 +43,56 @@
             min-height: 100vh;
         }
 
+        /* --- Estilos do Seletor de Idiomas --- */
+        .lang-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .lang-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+        }
+        /* -------------------------------------- */
+
+        .app-author {
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 24px;
+            font-weight: 500;
+        }
+
+        .app-author a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .app-author a:hover {
+            text-decoration: underline;
+        }
+
         .app-container {
             width: 100%;
             max-width: 480px;
-            margin-bottom: 200px; /* Espaço para o painel fixo inferior */
+            margin-bottom: 160px;
         }
 
         header {
@@ -132,11 +182,9 @@
             margin-left: 4px;
         }
 
-        /* Estilização dos Sliders (Sliders modernos para Mobile) */
         input[type="range"] {
             -webkit-appearance: none;
             width: 100%;
-            height: 6 -webkit-appearance: none;
             height: 6px;
             background: var(--border);
             border-radius: 3px;
@@ -168,27 +216,30 @@
             opacity: 0.5;
         }
 
-        /* Painel de Resultados Fixo Inferior */
         .results-panel {
             position: fixed;
-            bottom: 0;
+            bottom: 20px;
             left: 0;
             right: 0;
             background-color: var(--card-bg);
-            box-shadow: 0 -10px 15px -3px rgba(0, 0, 0, 0.05), 0 -4px 6px -2px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 -10px 15px -3px rgba(0, 0, 0, 0.05);
             border-top: 1px solid var(--border);
-            padding: 16px;
+            padding: 12px 8px 24px;
             display: flex;
             justify-content: space-around;
-            gap: 12px;
+            gap: 8px;
             z-index: 100;
         }
 
         .result-box {
             flex: 1;
+            padding: 8px 4px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             text-align: center;
-            padding: 10px;
-            border-radius: 12px;
         }
 
         .result-box.total {
@@ -201,23 +252,40 @@
             border: 1px solid rgba(16, 185, 129, 0.2);
         }
 
+        .result-box.percent {
+            background-color: var(--warning-light);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
         .result-title {
-            font-size: 11px;
+            font-size: 14px;
             font-weight: 700;
             text-transform: uppercase;
             color: var(--text-muted);
             margin-bottom: 4px;
+            line-height: 1.1;
         }
 
         .result-value {
-            font-size: 20px;
+            font-size: 21px;
             font-weight: 800;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .result-value span.unit {
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 2px;
         }
 
         .result-box.total .result-value { color: var(--primary); }
         .result-box.window .result-value { color: var(--success); }
+        .result-box.percent .result-value { color: var(--warning); }
 
-        /* Ajuste para ecrãs maiores de PC */
         @media (min-width: 480px) {
             body { padding-top: 40px; }
             .results-panel {
@@ -228,6 +296,13 @@
                 box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             }
             .app-container { margin-bottom: 20px; }
+            .result-value { 
+                font-size: 20px; 
+                flex-direction: row; 
+                gap: 4px; 
+                justify-content: center; 
+            }
+            .result-value span.unit { font-size: 14px; margin-top: 0; }
         }
     </style>
 </head>
@@ -235,16 +310,21 @@
 
 <div class="app-container">
     <header>
-        <h1>Calculadora Autonomia VE ⚡</h1>
-        <p>Ajuste os parâmetros em tempo real</p>
+        <div class="lang-toggle">
+            <button id="btn-pt" class="lang-btn active" onclick="mudarIdioma('pt')">PT-BR</button>
+            <button id="btn-en" class="lang-btn" onclick="mudarIdioma('en')">EN-US</button>
+        </div>
+
+        <h1 data-i18n="appTitle">Simulador Autonomia VE ⚡</h1>
+        <p data-i18n="appSubtitle">Ajuste os parâmetros em tempo real</p>
     </header>
 
     <div class="card">
-        <div class="card-title">🔋 Dados da Bateria</div>
+        <div class="card-title" data-i18n="batTitle">🔋 Dados da Bateria</div>
         
         <div class="input-block">
             <div class="input-header">
-                <label for="batSizeNum">Capacidade Nominal</label>
+                <label for="batSizeNum" data-i18n="batNominal">Capacidade Nominal</label>
                 <div class="value-display">
                     <input type="number" id="batSizeNum" value="82.0" step="0.1" min="5" max="150">
                     <span>kWh</span>
@@ -255,7 +335,7 @@
 
         <div class="input-block">
             <div class="input-header">
-                <label for="batHealthNum">Saúde da Bateria (SoH)</label>
+                <label for="batHealthNum" data-i18n="batHealth">Saúde da Bateria (SoH)</label>
                 <div class="value-display">
                     <input type="number" id="batHealthNum" value="95" step="1" min="50" max="100">
                     <span>%</span>
@@ -266,11 +346,11 @@
     </div>
 
     <div class="card">
-        <div class="card-title">🔌 Janela de Utilização</div>
+        <div class="card-title" data-i18n="winTitle">🔌 Janela de Utilização</div>
         
         <div class="input-block">
             <div class="input-header">
-                <label for="cargaMaxNum">Carga Inicial / Máxima</label>
+                <label for="cargaMaxNum" data-i18n="winMax">Carga Inicial / Máxima</label>
                 <div class="value-display">
                     <input type="number" id="cargaMaxNum" value="80" step="1" min="0" max="100">
                     <span>%</span>
@@ -281,22 +361,22 @@
 
         <div class="input-block">
             <div class="input-header">
-                <label for="cargaMinNum">Carga Final / Mínima</label>
+                <label for="cargaMinNum" data-i18n="winMin">Carga Final / Mínima</label>
                 <div class="value-display">
                     <input type="number" id="cargaMinNum" value="10" step="1" min="0" max="100">
                     <span>%</span>
                 </div>
             </div>
-            <input type="range" id="cargaMinSlider" value="20" step="1" min="0" max="100">
+            <input type="range" id="cargaMinSlider" value="10" step="1" min="0" max="100">
         </div>
     </div>
 
     <div class="card">
-        <div class="card-title">⚙️ Eficiência / Consumo</div>
+        <div class="card-title" data-i18n="effTitle">⚙️ Eficiência / Consumo</div>
         
         <div class="input-block">
             <div class="input-header">
-                <label for="consKwhNum">Consumo Elétrico</label>
+                <label for="consKwhNum" data-i18n="effElec">Consumo Elétrico</label>
                 <div class="value-display">
                     <input type="number" id="consKwhNum" value="20.0" step="0.1" min="5" max="40">
                     <span>kWh/100km</span>
@@ -305,11 +385,11 @@
             <input type="range" id="consKwhSlider" value="20.0" step="0.1" min="5" max="40">
         </div>
 
-        <div class="sync-icon">↕️ Equivalência Sincronizada ↕️</div>
+        <div class="sync-icon" data-i18n="effSync">↕️ Equivalência Sincronizada ↕️</div>
 
         <div class="input-block">
             <div class="input-header">
-                <label for="consHphNum">Consumo Mecânico</label>
+                <label for="consHphNum" data-i18n="effMech">Consumo Mecânico</label>
                 <div class="value-display">
                     <input type="number" id="consHphNum" value="26.82" step="0.1" min="6.7" max="53.6">
                     <span>HPh/100km</span>
@@ -321,18 +401,96 @@
 
     <div class="results-panel">
         <div class="result-box total">
-            <div class="result-title">Autonomia Total (100%)</div>
-            <div class="result-value"><span id="resTotal">375.0</span> km</div>
+            <div class="result-title" data-i18n="resTotal">Total 100%</div>
+            <div class="result-value"><span id="resTotal">375.0</span><span class="unit">km</span></div>
         </div>
         <div class="result-box window">
-            <div class="result-title">Na Janela Escolhida</div>
-            <div class="result-value"><span id="resJanela">225.0</span> km</div>
+            <div class="result-title" data-i18n="resWindow">Na Janela</div>
+            <div class="result-value"><span id="resJanela">225.0</span><span class="unit">km</span></div>
+        </div>
+        <div class="result-box percent">
+            <div class="result-title" data-i18n="resPer1">Por 1%</div>
+            <div class="result-value"><span id="resPercent">3.75</span><span class="unit">km/%</span></div>
         </div>
     </div>
+
+    <footer class="app-author">
+        <span data-i18n="footerDev">Desenvolvido com ⚡ por</span> <a href="mailto:fernandogarcez@gmail.com?subject=Contato EV Calc">Fernando Garcez</a>
+    </footer>
 </div>
 
 <script>
-// Seleção de elementos do DOM
+    // --- DICIONÁRIO DE TRADUÇÕES ---
+    const dicionario = {
+        pt: {
+            appTitle: "Simulador Autonomia VE ⚡",
+            appSubtitle: "Ajuste os parâmetros em tempo real",
+            batTitle: "🔋 Dados da Bateria",
+            batNominal: "Capacidade Nominal",
+            batHealth: "Saúde da Bateria (SoH)",
+            winTitle: "🔌 Janela de Utilização",
+            winMax: "Carga Inicial / Máxima",
+            winMin: "Carga Final / Mínima",
+            effTitle: "⚙️ Eficiência / Consumo",
+            effElec: "Consumo Elétrico",
+            effSync: "↕️ Equivalência Sincronizada ↕️",
+            effMech: "Consumo Mecânico",
+            resTotal: "Total 100%",
+            resWindow: "Na Janela",
+            resPer1: "Por 1%",
+            footerDev: "Desenvolvido com ⚡ por"
+        },
+        en: {
+            appTitle: "EV Range Simulator ⚡",
+            appSubtitle: "Adjust parameters in real-time",
+            batTitle: "🔋 Battery Data",
+            batNominal: "Nominal Capacity",
+            batHealth: "Battery Health (SoH)",
+            winTitle: "🔌 Usage Window",
+            winMax: "Initial / Max Charge",
+            winMin: "Final / Min Charge",
+            effTitle: "⚙️ Efficiency / Consumption",
+            effElec: "Electric Consumption",
+            effSync: "↕️ Synchronized Equivalence ↕️",
+            effMech: "Mechanical Consumption",
+            resTotal: "Total 100%",
+            resWindow: "In Window",
+            resPer1: "Per 1%",
+            footerDev: "Developed with ⚡ by"
+        }
+    };
+
+    // --- FUNÇÕES DE IDIOMA ---
+    function mudarIdioma(lang) {
+        // Salva a escolha
+        localStorage.setItem('veCalcLang', lang);
+        document.documentElement.lang = lang === 'pt' ? 'pt-BR' : 'en-US';
+
+        // Atualiza os botões (visual ativo)
+        document.getElementById('btn-pt').classList.toggle('active', lang === 'pt');
+        document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+
+        // Atualiza todos os textos com base nos atributos data-i18n
+        document.querySelectorAll('[data-i18n]').forEach(elemento => {
+            const chave = elemento.getAttribute('data-i18n');
+            if (dicionario[lang][chave]) {
+                elemento.textContent = dicionario[lang][chave];
+            }
+        });
+    }
+
+    function inicializarIdioma() {
+        const idiomaSalvo = localStorage.getItem('veCalcLang');
+        if (idiomaSalvo) {
+            mudarIdioma(idiomaSalvo);
+        } else {
+            // Detecta o idioma do sistema/navegador (se não for PT, vai para EN)
+            const idiomaNavegador = navigator.language || navigator.userLanguage;
+            mudarIdioma(idiomaNavegador.startsWith('pt') ? 'pt' : 'en');
+        }
+    }
+
+    // --- LÓGICA DO SIMULADOR ---
     const batSizeNum = document.getElementById('batSizeNum'), batSizeSlider = document.getElementById('batSizeSlider');
     const batHealthNum = document.getElementById('batHealthNum'), batHealthSlider = document.getElementById('batHealthSlider');
     const cargaMaxNum = document.getElementById('cargaMaxNum'), cargaMaxSlider = document.getElementById('cargaMaxSlider');
@@ -342,12 +500,11 @@
     
     const resTotal = document.getElementById('resTotal');
     const resJanela = document.getElementById('resJanela');
+    const resPercent = document.getElementById('resPercent');
 
-    // Fatores de conversão constantes
     const KWH_TO_HPH = 1.34102;
     const HPH_TO_KWH = 0.7457;
 
-    // --- NOVIDADE: Função para salvar na memória do celular ---
     function salvarDados() {
         const dados = {
             batSize: batSizeNum.value,
@@ -357,17 +514,14 @@
             consKwh: consKwhNum.value,
             consHph: consHphNum.value
         };
-        // Guarda os dados no formato de texto (JSON) no LocalStorage
         localStorage.setItem('veCalcSave', JSON.stringify(dados));
     }
 
-    // --- NOVIDADE: Função para carregar da memória do celular ---
     function carregarDados() {
         const saved = localStorage.getItem('veCalcSave');
         if (saved) {
             const dados = JSON.parse(saved);
             
-            // Restaura os valores nas caixas de texto
             batSizeNum.value = dados.batSize;
             batHealthNum.value = dados.batHealth;
             cargaMaxNum.value = dados.cargaMax;
@@ -375,7 +529,6 @@
             consKwhNum.value = dados.consKwh;
             consHphNum.value = dados.consHph;
 
-            // Restaura as posições dos sliders visuais
             batSizeSlider.value = dados.batSize;
             batHealthSlider.value = dados.batHealth;
             cargaMaxSlider.value = dados.cargaMax;
@@ -385,7 +538,6 @@
         }
     }
 
-    // Função de cálculo principal
     function calcular() {
         const batSize = parseFloat(batSizeNum.value) || 0;
         const batHealth = parseFloat(batHealthNum.value) || 0;
@@ -393,28 +545,27 @@
         const cMin = parseFloat(cargaMinNum.value) || 0;
         const consKwh = parseFloat(consKwhNum.value) || 0;
 
-        // 1. Capacidade Real considerando SoH (Saúde)
         const capacidadeUtil = batSize * (batHealth / 100);
 
         if (consKwh > 0 && capacidadeUtil > 0) {
-            // 2. Autonomia Total (100% da bateria útil)
             const autonomiaTotal = (capacidadeUtil / consKwh) * 100;
             resTotal.textContent = autonomiaTotal.toFixed(1);
 
-            // 3. Autonomia baseada na janela de uso (Ex: 80% - 20% = 60% de uso)
             const percentualJanela = Math.max(0, cMax - cMin) / 100;
             const autonomiaJanela = autonomiaTotal * percentualJanela;
             resJanela.textContent = autonomiaJanela.toFixed(1);
+
+            const kmPorPorcento = autonomiaTotal / 100;
+            resPercent.textContent = kmPorPorcento.toFixed(2);
         } else {
             resTotal.textContent = "0.0";
             resJanela.textContent = "0.0";
+            resPercent.textContent = "0.00";
         }
 
-        // NOVIDADE: Salva os dados automaticamente a cada novo cálculo
         salvarDados();
     }
 
-    // Função auxiliar para vincular Slider <=> Input Number
     function vincularInputs(inputNum, inputSlider, callbackAdicional) {
         inputSlider.addEventListener('input', (e) => {
             inputNum.value = e.target.value;
@@ -431,11 +582,9 @@
         });
     }
 
-    // Vinculações básicas (Bateria)
     vincularInputs(batSizeNum, batSizeSlider);
     vincularInputs(batHealthNum, batHealthSlider);
 
-    // Vinculações com travas lógicas (Janela de carga)
     vincularInputs(cargaMaxNum, cargaMaxSlider, () => {
         let max = parseInt(cargaMaxNum.value) || 0;
         let min = parseInt(cargaMinNum.value) || 0;
@@ -454,7 +603,6 @@
         }
     });
 
-    // Vinculações cruzadas (Consumos Sincronizados)
     vincularInputs(consKwhNum, consKwhSlider, (origem) => {
         let kwh = parseFloat(consKwhNum.value) || 0;
         let hphCalculado = (kwh * KWH_TO_HPH).toFixed(2);
@@ -469,9 +617,9 @@
         consKwhSlider.value = kwhCalculado;
     });
 
-    // NOVIDADE: Carrega os dados salvos antes de fazer o primeiro cálculo da página
+    // Inicia idioma, carrega dados e faz primeiro cálculo
+    inicializarIdioma();
     carregarDados();
-    // Executar cálculo inicial ao abrir a página
     calcular();
 </script>
 
