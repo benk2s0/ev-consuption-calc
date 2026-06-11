@@ -10,6 +10,7 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#f1f5f9">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
         :root {
             --bg-color: #f1f5f9;
@@ -43,15 +44,21 @@
             min-height: 100vh;
         }
 
-        /* --- Estilos do Seletor de Idiomas --- */
-        .lang-toggle {
+        /* --- Header Topo --- */
+        .top-bar {
             display: flex;
             justify-content: center;
-            gap: 8px;
+            align-items: center;
+            gap: 12px;
             margin-bottom: 16px;
         }
 
-        .lang-btn {
+        .lang-toggle {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-action {
             background: transparent;
             border: 1px solid var(--border);
             color: var(--text-muted);
@@ -63,13 +70,20 @@
             transition: all 0.2s ease;
         }
 
-        .lang-btn.active {
+        .btn-action.active {
             background: var(--primary);
             color: white;
             border-color: var(--primary);
             box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
         }
-        /* -------------------------------------- */
+
+        #btn-install {
+            display: none; /* Escondido por padrão, o JS decide se mostra */
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+        }
 
         .app-author {
             text-align: center;
@@ -83,10 +97,6 @@
             color: var(--primary);
             text-decoration: none;
             font-weight: 700;
-        }
-
-        .app-author a:hover {
-            text-decoration: underline;
         }
 
         .app-container {
@@ -204,10 +214,6 @@
             transition: transform 0.1s;
         }
 
-        input[type="range"]::-webkit-slider-thumb:active {
-            transform: scale(1.2);
-        }
-
         .sync-icon {
             text-align: center;
             margin: -6px 0 6px 0;
@@ -296,32 +302,30 @@
                 box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             }
             .app-container { margin-bottom: 20px; }
-            .result-value { 
-                font-size: 20px; 
-                flex-direction: row; 
-                gap: 4px; 
-                justify-content: center; 
-            }
+            .result-value { font-size: 20px; flex-direction: row; gap: 4px; justify-content: center; }
             .result-value span.unit { font-size: 14px; margin-top: 0; }
+            #btn-install { display: none !important; } /* Esconde no PC */
         }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    <header>
+    <div class="top-bar">
         <div class="lang-toggle">
-            <button id="btn-pt" class="lang-btn active" onclick="mudarIdioma('pt')">PT-BR</button>
-            <button id="btn-en" class="lang-btn" onclick="mudarIdioma('en')">EN-US</button>
+            <button id="btn-pt" class="btn-action active" onclick="mudarIdioma('pt')">PT-BR</button>
+            <button id="btn-en" class="btn-action" onclick="mudarIdioma('en')">EN-US</button>
         </div>
+        <button id="btn-install" class="btn-action" data-i18n="installApp">📲 Instalar</button>
+    </div>
 
+    <header>
         <h1 data-i18n="appTitle">Simulador Autonomia VE ⚡</h1>
         <p data-i18n="appSubtitle">Ajuste os parâmetros em tempo real</p>
     </header>
 
     <div class="card">
         <div class="card-title" data-i18n="batTitle">🔋 Dados da Bateria</div>
-        
         <div class="input-block">
             <div class="input-header">
                 <label for="batSizeNum" data-i18n="batNominal">Capacidade Nominal</label>
@@ -332,7 +336,6 @@
             </div>
             <input type="range" id="batSizeSlider" value="82.0" step="0.1" min="5" max="150">
         </div>
-
         <div class="input-block">
             <div class="input-header">
                 <label for="batHealthNum" data-i18n="batHealth">Saúde da Bateria (SoH)</label>
@@ -347,7 +350,6 @@
 
     <div class="card">
         <div class="card-title" data-i18n="winTitle">🔌 Janela de Utilização</div>
-        
         <div class="input-block">
             <div class="input-header">
                 <label for="cargaMaxNum" data-i18n="winMax">Carga Inicial / Máxima</label>
@@ -358,7 +360,6 @@
             </div>
             <input type="range" id="cargaMaxSlider" value="80" step="1" min="0" max="100">
         </div>
-
         <div class="input-block">
             <div class="input-header">
                 <label for="cargaMinNum" data-i18n="winMin">Carga Final / Mínima</label>
@@ -373,7 +374,6 @@
 
     <div class="card">
         <div class="card-title" data-i18n="effTitle">⚙️ Eficiência / Consumo</div>
-        
         <div class="input-block">
             <div class="input-header">
                 <label for="consKwhNum" data-i18n="effElec">Consumo Elétrico</label>
@@ -384,9 +384,7 @@
             </div>
             <input type="range" id="consKwhSlider" value="20.0" step="0.1" min="5" max="40">
         </div>
-
         <div class="sync-icon" data-i18n="effSync">↕️ Equivalência Sincronizada ↕️</div>
-
         <div class="input-block">
             <div class="input-header">
                 <label for="consHphNum" data-i18n="effMech">Consumo Mecânico</label>
@@ -425,6 +423,8 @@
         pt: {
             appTitle: "Simulador Autonomia VE ⚡",
             appSubtitle: "Ajuste os parâmetros em tempo real",
+            installApp: "📲 Instalar",
+            iosAlert: "Para instalar no iPhone:\n\n1. Toque no ícone de Compartilhar (quadrado com seta para cima) na barra inferior do Safari.\n2. Escolha 'Adicionar à Tela de Início'.",
             batTitle: "🔋 Dados da Bateria",
             batNominal: "Capacidade Nominal",
             batHealth: "Saúde da Bateria (SoH)",
@@ -443,6 +443,8 @@
         en: {
             appTitle: "EV Range Simulator ⚡",
             appSubtitle: "Adjust parameters in real-time",
+            installApp: "📲 Install",
+            iosAlert: "To install on iPhone:\n\n1. Tap the Share icon (square with an up arrow) at the bottom of Safari.\n2. Select 'Add to Home Screen'.",
             batTitle: "🔋 Battery Data",
             batNominal: "Nominal Capacity",
             batHealth: "Battery Health (SoH)",
@@ -460,17 +462,54 @@
         }
     };
 
+    // --- LÓGICA DE INSTALAÇÃO (PWA) ---
+    let deferredPrompt;
+    const btnInstall = document.getElementById('btn-install');
+
+    // Detecta se é iOS e se NÃO está rodando como App instalado
+    const isIos = () => {
+        const userAgent = window.navigator.userAgent.toLowerCase();
+        return /iphone|ipad|ipod/.test(userAgent);
+    };
+    const isIosInstalled = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+
+    // Mostra o botão para o iOS se não estiver instalado
+    if (isIos() && !isIosInstalled()) {
+        btnInstall.style.display = 'block';
+    }
+
+    // Intercepta o evento nativo do Android
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        btnInstall.style.display = 'block'; // Mostra o botão no Android
+    });
+
+    btnInstall.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            // Fluxo Android
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                btnInstall.style.display = 'none';
+            }
+            deferredPrompt = null;
+        } else if (isIos()) {
+            // Fluxo iOS (Alerta customizado)
+            const lang = localStorage.getItem('veCalcLang') || (navigator.language.startsWith('pt') ? 'pt' : 'en');
+            alert(dicionario[lang].iosAlert);
+        }
+    });
+
+
     // --- FUNÇÕES DE IDIOMA ---
     function mudarIdioma(lang) {
-        // Salva a escolha
         localStorage.setItem('veCalcLang', lang);
         document.documentElement.lang = lang === 'pt' ? 'pt-BR' : 'en-US';
 
-        // Atualiza os botões (visual ativo)
         document.getElementById('btn-pt').classList.toggle('active', lang === 'pt');
         document.getElementById('btn-en').classList.toggle('active', lang === 'en');
 
-        // Atualiza todos os textos com base nos atributos data-i18n
         document.querySelectorAll('[data-i18n]').forEach(elemento => {
             const chave = elemento.getAttribute('data-i18n');
             if (dicionario[lang][chave]) {
@@ -484,7 +523,6 @@
         if (idiomaSalvo) {
             mudarIdioma(idiomaSalvo);
         } else {
-            // Detecta o idioma do sistema/navegador (se não for PT, vai para EN)
             const idiomaNavegador = navigator.language || navigator.userLanguage;
             mudarIdioma(idiomaNavegador.startsWith('pt') ? 'pt' : 'en');
         }
@@ -521,7 +559,6 @@
         const saved = localStorage.getItem('veCalcSave');
         if (saved) {
             const dados = JSON.parse(saved);
-            
             batSizeNum.value = dados.batSize;
             batHealthNum.value = dados.batHealth;
             cargaMaxNum.value = dados.cargaMax;
@@ -603,21 +640,20 @@
         }
     });
 
-    vincularInputs(consKwhNum, consKwhSlider, (origem) => {
+    vincularInputs(consKwhNum, consKwhSlider, () => {
         let kwh = parseFloat(consKwhNum.value) || 0;
         let hphCalculado = (kwh * KWH_TO_HPH).toFixed(2);
         consHphNum.value = hphCalculado;
         consHphSlider.value = hphCalculado;
     });
 
-    vincularInputs(consHphNum, consHphSlider, (origem) => {
+    vincularInputs(consHphNum, consHphSlider, () => {
         let hph = parseFloat(consHphNum.value) || 0;
         let kwhCalculado = (hph * HPH_TO_KWH).toFixed(2);
         consKwhNum.value = kwhCalculado;
         consKwhSlider.value = kwhCalculado;
     });
 
-    // Inicia idioma, carrega dados e faz primeiro cálculo
     inicializarIdioma();
     carregarDados();
     calcular();
