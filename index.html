@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>EV Calc</title>
+    <!-- Ícone da aba do navegador (Favicon) -->
     <link rel="icon" type="image/png" href="icone.png">
+    <!-- Ícone da Tela de Início do iPhone (Apple Touch Icon) -->
     <link rel="apple-touch-icon" href="icone.png">
 
     <link rel="manifest" href="manifest.json">
@@ -165,6 +167,29 @@
             color: var(--text-main);
         }
 
+        /* --- Select do Carro --- */
+        .car-select {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-size: 15px;
+            font-weight: 600;
+            outline: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            cursor: pointer;
+        }
+
+        .car-select:focus {
+            border-color: var(--primary);
+        }
+
         /* --- Caixas de Valores Unificadas --- */
         .value-display {
             display: flex;
@@ -175,7 +200,7 @@
             border-radius: 8px;
             padding: 6px 12px; 
             border: 1px solid var(--border);
-            width: 175px; /* Alargado ainda mais para caber as setinhas e o texto */
+            width: 175px; 
         }
 
         .value-display.secondary {
@@ -338,6 +363,31 @@
     <div class="card">
         <div class="card-title" data-i18n="batTitle">🔋 Dados da Bateria</div>
         
+        <!-- Dropdown dos Modelos -->
+        <div class="input-block" style="margin-bottom: 16px;">
+            <div class="input-header" style="margin-bottom: 8px;">
+                <label for="carModelSelect" data-i18n="carModel">Modelo do Veículo</label>
+            </div>
+            <select id="carModelSelect" class="car-select">
+                <option value="custom" data-i18n="customCar">Personalizado</option>
+                <optgroup label="BEV - 100% Elétrico">
+                    <option value="dolphin_mini" data-cap="38.0">BYD Dolphin Mini (38.0 kWh)</option>
+                    <option value="dolphin_gs" data-cap="44.9">BYD Dolphin GS / Diamond (44.9 kWh)</option>
+                    <option value="dolphin_plus" data-cap="60.4">BYD Dolphin Plus (60.4 kWh)</option>
+                    <option value="yuan_plus" data-cap="60.5">BYD Yuan Plus (60.5 kWh)</option>
+                    <option value="seal" data-cap="82.5">BYD Seal (82.5 kWh)</option>
+                    <option value="tan_23" data-cap="86.4">BYD Tan até 2023 (86.4 kWh)</option>
+                    <option value="tan_24" data-cap="108.8">BYD Tan 2024+ (108.8 kWh)</option>
+                </optgroup>
+                <optgroup label="PHEV - Híbrido Plug-in">
+                    <option value="king_gl" data-cap="8.3">BYD King GL (8.3 kWh)</option>
+                    <option value="king_gs" data-cap="18.3">BYD King GS (18.3 kWh)</option>
+                    <option value="song_plus_26" data-cap="18.3">BYD Song Plus até 2026 (18.3 kWh)</option>
+                    <option value="song_plus_27" data-cap="26.6">BYD Song Plus 2027+ (26.6 kWh)</option>
+                </optgroup>
+            </select>
+        </div>
+
         <div class="input-block" style="margin-bottom: 12px;">
             <div class="input-header" style="margin-bottom: 0;">
                 <label for="batSizeNum" data-i18n="batNominal">Capacidade Nominal</label>
@@ -433,6 +483,8 @@
             installApp: "📲 Instalar",
             iosAlert: "Para instalar no iPhone:\n\n1. Toque no ícone de Compartilhar (quadrado com seta para cima) na barra inferior do Safari.\n2. Escolha 'Adicionar à Tela de Início'.",
             batTitle: "🔋 Dados da Bateria",
+            carModel: "Modelo do Veículo",
+            customCar: "Personalizado",
             batNominal: "Capacidade Nominal",
             batHealth: "Saúde da Bateria (SoH)",
             winTitle: "🔌 Janela de Utilização",
@@ -451,6 +503,8 @@
             installApp: "📲 Install",
             iosAlert: "To install on iPhone:\n\n1. Tap the Share icon (square with an up arrow) at the bottom of Safari.\n2. Select 'Add to Home Screen'.",
             batTitle: "🔋 Battery Data",
+            carModel: "Vehicle Model",
+            customCar: "Custom",
             batNominal: "Nominal Capacity",
             batHealth: "Battery Health (SoH)",
             winTitle: "🔌 Usage Window",
@@ -526,6 +580,7 @@
     }
 
     // --- LÓGICA DO SIMULADOR ---
+    const carModelSelect = document.getElementById('carModelSelect');
     const batSizeNum = document.getElementById('batSizeNum');
     const batHealthNum = document.getElementById('batHealthNum');
     
@@ -540,6 +595,7 @@
 
     function salvarDados() {
         const dados = {
+            carModel: carModelSelect.value,
             batSize: batSizeNum.value,
             batHealth: batHealthNum.value,
             cargaMax: cargaMaxNum.value,
@@ -554,6 +610,8 @@
         const saved = localStorage.getItem('veCalcSave');
         if (saved) {
             const dados = JSON.parse(saved);
+            
+            if (dados.carModel) carModelSelect.value = dados.carModel;
             batSizeNum.value = parseFloat(dados.batSize).toFixed(1);
             batHealthNum.value = dados.batHealth;
             cargaMaxNum.value = dados.cargaMax;
@@ -595,7 +653,22 @@
         salvarDados();
     }
 
-    batSizeNum.addEventListener('input', calcular);
+    // Ações do Dropdown de Carros
+    carModelSelect.addEventListener('change', (e) => {
+        if (e.target.value !== 'custom') {
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            const capacity = selectedOption.getAttribute('data-cap');
+            batSizeNum.value = parseFloat(capacity).toFixed(1);
+            calcular();
+        }
+    });
+
+    // Se o usuário editar a bateria manualmente, muda para Personalizado
+    batSizeNum.addEventListener('input', (e) => {
+        carModelSelect.value = 'custom';
+        calcular();
+    });
+
     batHealthNum.addEventListener('input', calcular);
 
     function vincularJanela(inputNum, inputSlider, callbackVerificacao) {
