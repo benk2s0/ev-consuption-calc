@@ -78,7 +78,7 @@
         }
 
         #btn-install {
-            display: none; /* Escondido por padrão, o JS decide se mostra */
+            display: none;
             background: var(--success);
             color: white;
             border-color: var(--success);
@@ -165,13 +165,27 @@
             color: var(--text-main);
         }
 
+        /* --- Caixas de Valores Unificadas --- */
         .value-display {
             display: flex;
             align-items: center;
+            justify-content: flex-end;
+            gap: 6px; 
             background-color: var(--bg-color);
             border-radius: 8px;
-            padding: 4px 8px;
+            padding: 6px 12px; 
             border: 1px solid var(--border);
+            width: 175px; /* Alargado ainda mais para caber as setinhas e o texto */
+        }
+
+        .value-display.secondary {
+            background-color: var(--primary-light);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .value-display.secondary input[type="number"],
+        .value-display.secondary span {
+            color: var(--primary);
         }
 
         .value-display input[type="number"] {
@@ -180,18 +194,23 @@
             font-size: 15px;
             font-weight: 700;
             color: var(--text-main);
-            width: 60px;
+            width: 100%;
+            flex: 1; 
             text-align: right;
             outline: none;
+            padding: 0;
+            line-height: 1;
         }
 
         .value-display span {
             font-size: 12px;
             font-weight: 600;
             color: var(--text-muted);
-            margin-left: 4px;
+            white-space: nowrap; 
+            line-height: 1;
         }
 
+        /* --- Sliders --- */
         input[type="range"] {
             -webkit-appearance: none;
             width: 100%;
@@ -212,14 +231,6 @@
             cursor: pointer;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             transition: transform 0.1s;
-        }
-
-        .sync-icon {
-            text-align: center;
-            margin: -6px 0 6px 0;
-            color: var(--text-muted);
-            font-size: 14px;
-            opacity: 0.5;
         }
 
         .results-panel {
@@ -304,7 +315,7 @@
             .app-container { margin-bottom: 20px; }
             .result-value { font-size: 20px; flex-direction: row; gap: 4px; justify-content: center; }
             .result-value span.unit { font-size: 14px; margin-top: 0; }
-            #btn-install { display: none !important; } /* Esconde no PC */
+            #btn-install { display: none !important; }
         }
     </style>
 </head>
@@ -326,25 +337,24 @@
 
     <div class="card">
         <div class="card-title" data-i18n="batTitle">🔋 Dados da Bateria</div>
-        <div class="input-block">
-            <div class="input-header">
+        
+        <div class="input-block" style="margin-bottom: 12px;">
+            <div class="input-header" style="margin-bottom: 0;">
                 <label for="batSizeNum" data-i18n="batNominal">Capacidade Nominal</label>
                 <div class="value-display">
                     <input type="number" id="batSizeNum" value="82.0" step="0.1" min="5" max="150">
                     <span>kWh</span>
                 </div>
             </div>
-            <input type="range" id="batSizeSlider" value="82.0" step="0.1" min="5" max="150">
         </div>
         <div class="input-block">
-            <div class="input-header">
+            <div class="input-header" style="margin-bottom: 0;">
                 <label for="batHealthNum" data-i18n="batHealth">Saúde da Bateria (SoH)</label>
                 <div class="value-display">
                     <input type="number" id="batHealthNum" value="95" step="1" min="50" max="100">
                     <span>%</span>
                 </div>
             </div>
-            <input type="range" id="batHealthSlider" value="95" step="1" min="50" max="100">
         </div>
     </div>
 
@@ -374,6 +384,7 @@
 
     <div class="card">
         <div class="card-title" data-i18n="effTitle">⚙️ Eficiência / Consumo</div>
+        
         <div class="input-block">
             <div class="input-header">
                 <label for="consKwhNum" data-i18n="effElec">Consumo Elétrico</label>
@@ -384,16 +395,12 @@
             </div>
             <input type="range" id="consKwhSlider" value="20.0" step="0.1" min="5" max="40">
         </div>
-        <div class="sync-icon" data-i18n="effSync">↕️ Equivalência Sincronizada ↕️</div>
-        <div class="input-block">
-            <div class="input-header">
-                <label for="consHphNum" data-i18n="effMech">Consumo Mecânico</label>
-                <div class="value-display">
-                    <input type="number" id="consHphNum" value="26.82" step="0.1" min="6.7" max="53.6">
-                    <span>HPh/100km</span>
-                </div>
+
+        <div class="input-block" style="display: flex; justify-content: flex-end; margin-top: -4px;">
+            <div class="value-display secondary">
+                <input type="number" id="consHphNum" value="26.8" step="0.1" min="6.7" max="53.6">
+                <span>HPh/100km</span>
             </div>
-            <input type="range" id="consHphSlider" value="26.82" step="0.1" min="6.7" max="53.6">
         </div>
     </div>
 
@@ -433,8 +440,6 @@
             winMin: "Carga Final / Mínima",
             effTitle: "⚙️ Eficiência / Consumo",
             effElec: "Consumo Elétrico",
-            effSync: "↕️ Equivalência Sincronizada ↕️",
-            effMech: "Consumo Mecânico",
             resTotal: "Total 100%",
             resWindow: "Na Janela",
             resPer1: "Por 1%",
@@ -453,8 +458,6 @@
             winMin: "Final / Min Charge",
             effTitle: "⚙️ Efficiency / Consumption",
             effElec: "Electric Consumption",
-            effSync: "↕️ Synchronized Equivalence ↕️",
-            effMech: "Mechanical Consumption",
             resTotal: "Total 100%",
             resWindow: "In Window",
             resPer1: "Per 1%",
@@ -466,28 +469,24 @@
     let deferredPrompt;
     const btnInstall = document.getElementById('btn-install');
 
-    // Detecta se é iOS e se NÃO está rodando como App instalado
     const isIos = () => {
         const userAgent = window.navigator.userAgent.toLowerCase();
         return /iphone|ipad|ipod/.test(userAgent);
     };
     const isIosInstalled = () => ('standalone' in window.navigator) && (window.navigator.standalone);
 
-    // Mostra o botão para o iOS se não estiver instalado
     if (isIos() && !isIosInstalled()) {
         btnInstall.style.display = 'block';
     }
 
-    // Intercepta o evento nativo do Android
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
-        btnInstall.style.display = 'block'; // Mostra o botão no Android
+        btnInstall.style.display = 'block';
     });
 
     btnInstall.addEventListener('click', async () => {
         if (deferredPrompt) {
-            // Fluxo Android
             deferredPrompt.prompt();
             const { outcome } = await deferredPrompt.userChoice;
             if (outcome === 'accepted') {
@@ -495,12 +494,10 @@
             }
             deferredPrompt = null;
         } else if (isIos()) {
-            // Fluxo iOS (Alerta customizado)
             const lang = localStorage.getItem('veCalcLang') || (navigator.language.startsWith('pt') ? 'pt' : 'en');
             alert(dicionario[lang].iosAlert);
         }
     });
-
 
     // --- FUNÇÕES DE IDIOMA ---
     function mudarIdioma(lang) {
@@ -529,16 +526,14 @@
     }
 
     // --- LÓGICA DO SIMULADOR ---
-    const batSizeNum = document.getElementById('batSizeNum'), batSizeSlider = document.getElementById('batSizeSlider');
-    const batHealthNum = document.getElementById('batHealthNum'), batHealthSlider = document.getElementById('batHealthSlider');
+    const batSizeNum = document.getElementById('batSizeNum');
+    const batHealthNum = document.getElementById('batHealthNum');
+    
     const cargaMaxNum = document.getElementById('cargaMaxNum'), cargaMaxSlider = document.getElementById('cargaMaxSlider');
     const cargaMinNum = document.getElementById('cargaMinNum'), cargaMinSlider = document.getElementById('cargaMinSlider');
-    const consKwhNum = document.getElementById('consKwhNum'), consKwhSlider = document.getElementById('consKwhSlider');
-    const consHphNum = document.getElementById('consHphNum'), consHphSlider = document.getElementById('consHphSlider');
     
-    const resTotal = document.getElementById('resTotal');
-    const resJanela = document.getElementById('resJanela');
-    const resPercent = document.getElementById('resPercent');
+    const consKwhNum = document.getElementById('consKwhNum'), consKwhSlider = document.getElementById('consKwhSlider');
+    const consHphNum = document.getElementById('consHphNum');
 
     const KWH_TO_HPH = 1.34102;
     const HPH_TO_KWH = 0.7457;
@@ -559,19 +554,16 @@
         const saved = localStorage.getItem('veCalcSave');
         if (saved) {
             const dados = JSON.parse(saved);
-            batSizeNum.value = dados.batSize;
+            batSizeNum.value = parseFloat(dados.batSize).toFixed(1);
             batHealthNum.value = dados.batHealth;
             cargaMaxNum.value = dados.cargaMax;
             cargaMinNum.value = dados.cargaMin;
-            consKwhNum.value = dados.consKwh;
-            consHphNum.value = dados.consHph;
+            consKwhNum.value = parseFloat(dados.consKwh).toFixed(1);
+            consHphNum.value = parseFloat(dados.consHph).toFixed(1);
 
-            batSizeSlider.value = dados.batSize;
-            batHealthSlider.value = dados.batHealth;
             cargaMaxSlider.value = dados.cargaMax;
             cargaMinSlider.value = dados.cargaMin;
             consKwhSlider.value = dados.consKwh;
-            consHphSlider.value = dados.consHph;
         }
     }
 
@@ -586,43 +578,43 @@
 
         if (consKwh > 0 && capacidadeUtil > 0) {
             const autonomiaTotal = (capacidadeUtil / consKwh) * 100;
-            resTotal.textContent = autonomiaTotal.toFixed(1);
+            document.getElementById('resTotal').textContent = autonomiaTotal.toFixed(1);
 
             const percentualJanela = Math.max(0, cMax - cMin) / 100;
             const autonomiaJanela = autonomiaTotal * percentualJanela;
-            resJanela.textContent = autonomiaJanela.toFixed(1);
+            document.getElementById('resJanela').textContent = autonomiaJanela.toFixed(1);
 
             const kmPorPorcento = autonomiaTotal / 100;
-            resPercent.textContent = kmPorPorcento.toFixed(2);
+            document.getElementById('resPercent').textContent = kmPorPorcento.toFixed(2);
         } else {
-            resTotal.textContent = "0.0";
-            resJanela.textContent = "0.0";
-            resPercent.textContent = "0.00";
+            document.getElementById('resTotal').textContent = "0.0";
+            document.getElementById('resJanela').textContent = "0.0";
+            document.getElementById('resPercent').textContent = "0.00";
         }
 
         salvarDados();
     }
 
-    function vincularInputs(inputNum, inputSlider, callbackAdicional) {
+    batSizeNum.addEventListener('input', calcular);
+    batHealthNum.addEventListener('input', calcular);
+
+    function vincularJanela(inputNum, inputSlider, callbackVerificacao) {
         inputSlider.addEventListener('input', (e) => {
             inputNum.value = e.target.value;
-            if(callbackAdicional) callbackAdicional('slider');
+            callbackVerificacao();
             calcular();
         });
         inputNum.addEventListener('input', (e) => {
             let val = parseFloat(e.target.value);
             if (!isNaN(val)) {
                 inputSlider.value = val;
-                if(callbackAdicional) callbackAdicional('num');
+                callbackVerificacao();
                 calcular();
             }
         });
     }
 
-    vincularInputs(batSizeNum, batSizeSlider);
-    vincularInputs(batHealthNum, batHealthSlider);
-
-    vincularInputs(cargaMaxNum, cargaMaxSlider, () => {
+    vincularJanela(cargaMaxNum, cargaMaxSlider, () => {
         let max = parseInt(cargaMaxNum.value) || 0;
         let min = parseInt(cargaMinNum.value) || 0;
         if (max < min) {
@@ -631,7 +623,7 @@
         }
     });
 
-    vincularInputs(cargaMinNum, cargaMinSlider, () => {
+    vincularJanela(cargaMinNum, cargaMinSlider, () => {
         let max = parseInt(cargaMaxNum.value) || 0;
         let min = parseInt(cargaMinNum.value) || 0;
         if (min > max) {
@@ -640,18 +632,30 @@
         }
     });
 
-    vincularInputs(consKwhNum, consKwhSlider, () => {
-        let kwh = parseFloat(consKwhNum.value) || 0;
-        let hphCalculado = (kwh * KWH_TO_HPH).toFixed(2);
-        consHphNum.value = hphCalculado;
-        consHphSlider.value = hphCalculado;
+    consKwhSlider.addEventListener('input', (e) => {
+        let kwh = parseFloat(e.target.value) || 0;
+        consKwhNum.value = kwh.toFixed(1);
+        consHphNum.value = (kwh * KWH_TO_HPH).toFixed(1);
+        calcular();
     });
 
-    vincularInputs(consHphNum, consHphSlider, () => {
-        let hph = parseFloat(consHphNum.value) || 0;
-        let kwhCalculado = (hph * HPH_TO_KWH).toFixed(2);
-        consKwhNum.value = kwhCalculado;
-        consKwhSlider.value = kwhCalculado;
+    consKwhNum.addEventListener('input', (e) => {
+        let val = parseFloat(e.target.value);
+        if (!isNaN(val)) {
+            consKwhSlider.value = val;
+            consHphNum.value = (val * KWH_TO_HPH).toFixed(1);
+            calcular();
+        }
+    });
+
+    consHphNum.addEventListener('input', (e) => {
+        let val = parseFloat(e.target.value);
+        if (!isNaN(val)) {
+            let kwhVal = (val * HPH_TO_KWH).toFixed(1);
+            consKwhNum.value = kwhVal;
+            consKwhSlider.value = kwhVal;
+            calcular();
+        }
     });
 
     inicializarIdioma();
