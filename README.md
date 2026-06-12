@@ -39,7 +39,8 @@ Since this project is built with vanilla web technologies, there are no dependen
 ├── index.html       # Main application file (UI + Logic + Styles + i18n + Data)
 ├── manifest.json    # PWA configuration for Android
 ├── icone.png        # 512x512 App Icon for iOS/Android home screens
-└── README.md        # Project documentation
+└── README.md        # Project documentation 
+```
 
 ## 👨‍💻 Author
 
