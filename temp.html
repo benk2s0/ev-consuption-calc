@@ -4,12 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>EV Calc</title>
+    <!-- Ícone da aba do navegador (Favicon) -->
     <link rel="icon" type="image/png" href="icone.png">
+    <!-- Ícone da Tela de Início do iPhone (Apple Touch Icon) -->
     <link rel="apple-touch-icon" href="icone.png">
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#f1f5f9">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
         :root {
             --bg-color: #f1f5f9;
@@ -43,15 +46,21 @@
             min-height: 100vh;
         }
 
-        /* --- Estilos do Seletor de Idiomas --- */
-        .lang-toggle {
+        /* --- Header Topo --- */
+        .top-bar {
             display: flex;
             justify-content: center;
-            gap: 8px;
+            align-items: center;
+            gap: 12px;
             margin-bottom: 16px;
         }
 
-        .lang-btn {
+        .lang-toggle {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-action {
             background: transparent;
             border: 1px solid var(--border);
             color: var(--text-muted);
@@ -63,13 +72,20 @@
             transition: all 0.2s ease;
         }
 
-        .lang-btn.active {
+        .btn-action.active {
             background: var(--primary);
             color: white;
             border-color: var(--primary);
             box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
         }
-        /* -------------------------------------- */
+
+        #btn-install {
+            display: none;
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+        }
 
         .app-author {
             text-align: center;
@@ -83,10 +99,6 @@
             color: var(--primary);
             text-decoration: none;
             font-weight: 700;
-        }
-
-        .app-author a:hover {
-            text-decoration: underline;
         }
 
         .app-container {
@@ -155,13 +167,50 @@
             color: var(--text-main);
         }
 
+        /* --- Select do Carro --- */
+        .car-select {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-size: 15px;
+            font-weight: 600;
+            outline: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            cursor: pointer;
+        }
+
+        .car-select:focus {
+            border-color: var(--primary);
+        }
+
+        /* --- Caixas de Valores Unificadas --- */
         .value-display {
             display: flex;
             align-items: center;
+            justify-content: flex-end;
+            gap: 6px; 
             background-color: var(--bg-color);
             border-radius: 8px;
-            padding: 4px 8px;
+            padding: 6px 12px; 
             border: 1px solid var(--border);
+            width: 175px; 
+        }
+
+        .value-display.secondary {
+            background-color: var(--primary-light);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .value-display.secondary input[type="number"],
+        .value-display.secondary span {
+            color: var(--primary);
         }
 
         .value-display input[type="number"] {
@@ -170,18 +219,23 @@
             font-size: 15px;
             font-weight: 700;
             color: var(--text-main);
-            width: 60px;
+            width: 100%;
+            flex: 1; 
             text-align: right;
             outline: none;
+            padding: 0;
+            line-height: 1;
         }
 
         .value-display span {
             font-size: 12px;
             font-weight: 600;
             color: var(--text-muted);
-            margin-left: 4px;
+            white-space: nowrap; 
+            line-height: 1;
         }
 
+        /* --- Sliders --- */
         input[type="range"] {
             -webkit-appearance: none;
             width: 100%;
@@ -202,18 +256,6 @@
             cursor: pointer;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             transition: transform 0.1s;
-        }
-
-        input[type="range"]::-webkit-slider-thumb:active {
-            transform: scale(1.2);
-        }
-
-        .sync-icon {
-            text-align: center;
-            margin: -6px 0 6px 0;
-            color: var(--text-muted);
-            font-size: 14px;
-            opacity: 0.5;
         }
 
         .results-panel {
@@ -296,25 +338,24 @@
                 box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             }
             .app-container { margin-bottom: 20px; }
-            .result-value { 
-                font-size: 20px; 
-                flex-direction: row; 
-                gap: 4px; 
-                justify-content: center; 
-            }
+            .result-value { font-size: 20px; flex-direction: row; gap: 4px; justify-content: center; }
             .result-value span.unit { font-size: 14px; margin-top: 0; }
+            #btn-install { display: none !important; }
         }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    <header>
+    <div class="top-bar">
         <div class="lang-toggle">
-            <button id="btn-pt" class="lang-btn active" onclick="mudarIdioma('pt')">PT-BR</button>
-            <button id="btn-en" class="lang-btn" onclick="mudarIdioma('en')">EN-US</button>
+            <button id="btn-pt" class="btn-action active" onclick="mudarIdioma('pt')">PT-BR</button>
+            <button id="btn-en" class="btn-action" onclick="mudarIdioma('en')">EN-US</button>
         </div>
+        <button id="btn-install" class="btn-action" data-i18n="installApp">📲 Instalar</button>
+    </div>
 
+    <header>
         <h1 data-i18n="appTitle">Simulador Autonomia VE ⚡</h1>
         <p data-i18n="appSubtitle">Ajuste os parâmetros em tempo real</p>
     </header>
@@ -322,32 +363,53 @@
     <div class="card">
         <div class="card-title" data-i18n="batTitle">🔋 Dados da Bateria</div>
         
-        <div class="input-block">
-            <div class="input-header">
+        <!-- Seletores de Marca e Modelo -->
+        <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+            <div class="input-block" style="flex: 1; margin-bottom: 0;">
+                <div class="input-header" style="margin-bottom: 8px;">
+                    <label for="brandSelect" data-i18n="carBrand">Marca</label>
+                </div>
+                <select id="brandSelect" class="car-select">
+                    <option value="custom" data-i18n="customBrand">Nenhuma</option>
+                    <option value="byd">BYD</option>
+                    <option value="gwm">GWM</option>
+                    <option value="geely">Geely (Zeekr)</option>
+                </select>
+            </div>
+
+            <div class="input-block" style="flex: 2; margin-bottom: 0;">
+                <div class="input-header" style="margin-bottom: 8px;">
+                    <label for="carModelSelect" data-i18n="carModel">Modelo</label>
+                </div>
+                <select id="carModelSelect" class="car-select">
+                    <option value="custom" data-i18n="customCar">Personalizado</option>
+                    <!-- Preenchido via JavaScript -->
+                </select>
+            </div>
+        </div>
+
+        <div class="input-block" style="margin-bottom: 12px;">
+            <div class="input-header" style="margin-bottom: 0;">
                 <label for="batSizeNum" data-i18n="batNominal">Capacidade Nominal</label>
                 <div class="value-display">
                     <input type="number" id="batSizeNum" value="82.0" step="0.1" min="5" max="150">
                     <span>kWh</span>
                 </div>
             </div>
-            <input type="range" id="batSizeSlider" value="82.0" step="0.1" min="5" max="150">
         </div>
-
         <div class="input-block">
-            <div class="input-header">
+            <div class="input-header" style="margin-bottom: 0;">
                 <label for="batHealthNum" data-i18n="batHealth">Saúde da Bateria (SoH)</label>
                 <div class="value-display">
                     <input type="number" id="batHealthNum" value="95" step="1" min="50" max="100">
                     <span>%</span>
                 </div>
             </div>
-            <input type="range" id="batHealthSlider" value="95" step="1" min="50" max="100">
         </div>
     </div>
 
     <div class="card">
         <div class="card-title" data-i18n="winTitle">🔌 Janela de Utilização</div>
-        
         <div class="input-block">
             <div class="input-header">
                 <label for="cargaMaxNum" data-i18n="winMax">Carga Inicial / Máxima</label>
@@ -358,7 +420,6 @@
             </div>
             <input type="range" id="cargaMaxSlider" value="80" step="1" min="0" max="100">
         </div>
-
         <div class="input-block">
             <div class="input-header">
                 <label for="cargaMinNum" data-i18n="winMin">Carga Final / Mínima</label>
@@ -373,7 +434,6 @@
 
     <div class="card">
         <div class="card-title" data-i18n="effTitle">⚙️ Eficiência / Consumo</div>
-        
         <div class="input-block">
             <div class="input-header">
                 <label for="consKwhNum" data-i18n="effElec">Consumo Elétrico</label>
@@ -385,17 +445,11 @@
             <input type="range" id="consKwhSlider" value="20.0" step="0.1" min="5" max="40">
         </div>
 
-        <div class="sync-icon" data-i18n="effSync">↕️ Equivalência Sincronizada ↕️</div>
-
-        <div class="input-block">
-            <div class="input-header">
-                <label for="consHphNum" data-i18n="effMech">Consumo Mecânico</label>
-                <div class="value-display">
-                    <input type="number" id="consHphNum" value="26.82" step="0.1" min="6.7" max="53.6">
-                    <span>HPh/100km</span>
-                </div>
+        <div class="input-block" style="display: flex; justify-content: flex-end; margin-top: -4px;">
+            <div class="value-display secondary">
+                <input type="number" id="consHphNum" value="26.8" step="0.1" min="6.7" max="53.6">
+                <span>HPh/100km</span>
             </div>
-            <input type="range" id="consHphSlider" value="26.82" step="0.1" min="6.7" max="53.6">
         </div>
     </div>
 
@@ -420,12 +474,62 @@
 </div>
 
 <script>
+    // --- BANCO DE DADOS DE VEÍCULOS ---
+    const bdCarros = {
+        byd: {
+            bev: [
+                { id: "dolphin_mini", cap: 38.0, label: "Dolphin Mini (38.0 kWh)" },
+                { id: "dolphin_ev", cap: 44.9, label: "Dolphin EV / GS (44.9 kWh)" },
+                { id: "dolphin_plus", cap: 60.4, label: "Dolphin Plus (60.4 kWh)" },
+                { id: "yuan_pro", cap: 45.1, label: "Yuan Pro (45.1 kWh)" },
+                { id: "yuan_plus", cap: 60.5, label: "Yuan Plus (60.5 kWh)" },
+                { id: "seal", cap: 82.5, label: "Seal (82.5 kWh)" },
+                { id: "han", cap: 85.4, label: "Han (85.4 kWh)" },
+                { id: "tan_23", cap: 86.4, label: "Tan até 2023 (86.4 kWh)" },
+                { id: "tan_24", cap: 108.8, label: "Tan 2024+ (108.8 kWh)" }
+            ],
+            phev: [
+                { id: "king_gl", cap: 8.3, label: "King GL (8.3 kWh)" },
+                { id: "song_pro_gl", cap: 12.9, label: "Song Pro GL (12.9 kWh)" },
+                { id: "king_gs", cap: 18.3, label: "King GS (18.3 kWh)" },
+                { id: "song_pro_gs", cap: 18.3, label: "Song Pro GS (18.3 kWh)" },
+                { id: "song_plus_26", cap: 18.3, label: "Song Plus até 2026 (18.3 kWh)" },
+                { id: "song_plus_27", cap: 26.6, label: "Song Plus 2027+ (26.6 kWh)" },
+                { id: "shark", cap: 29.6, label: "Shark Picape (29.6 kWh)" }
+            ]
+        },
+        gwm: {
+            bev: [
+                { id: "ora_03_skin", cap: 48.0, label: "Ora 03 Skin (48.0 kWh)" },
+                { id: "ora_03_gt", cap: 63.0, label: "Ora 03 GT (63.0 kWh)" }
+            ],
+            phev: [
+                { id: "haval_h6_phev", cap: 34.0, label: "Haval H6 PHEV / GT (34.0 kWh)" }
+            ]
+        },
+        geely: {
+            bev: [
+                { id: "zeekr_x", cap: 66.0, label: "Zeekr X (66.0 kWh)" },
+                { id: "zeekr_001", cap: 100.0, label: "Zeekr 001 (100.0 kWh)" }
+            ],
+            phev: []
+        }
+    };
+
     // --- DICIONÁRIO DE TRADUÇÕES ---
     const dicionario = {
         pt: {
             appTitle: "Simulador Autonomia VE ⚡",
             appSubtitle: "Ajuste os parâmetros em tempo real",
+            installApp: "📲 Instalar",
+            iosAlert: "Para instalar no iPhone:\n\n1. Toque no ícone de Compartilhar (quadrado com seta para cima) na barra inferior do Safari.\n2. Escolha 'Adicionar à Tela de Início'.",
             batTitle: "🔋 Dados da Bateria",
+            carBrand: "Marca",
+            customBrand: "Nenhuma",
+            carModel: "Modelo",
+            customCar: "Personalizado",
+            bevGroup: "BEV - 100% Elétrico",
+            phevGroup: "PHEV - Híbrido Plug-in",
             batNominal: "Capacidade Nominal",
             batHealth: "Saúde da Bateria (SoH)",
             winTitle: "🔌 Janela de Utilização",
@@ -433,8 +537,6 @@
             winMin: "Carga Final / Mínima",
             effTitle: "⚙️ Eficiência / Consumo",
             effElec: "Consumo Elétrico",
-            effSync: "↕️ Equivalência Sincronizada ↕️",
-            effMech: "Consumo Mecânico",
             resTotal: "Total 100%",
             resWindow: "Na Janela",
             resPer1: "Por 1%",
@@ -443,7 +545,15 @@
         en: {
             appTitle: "EV Range Simulator ⚡",
             appSubtitle: "Adjust parameters in real-time",
+            installApp: "📲 Install",
+            iosAlert: "To install on iPhone:\n\n1. Tap the Share icon (square with an up arrow) at the bottom of Safari.\n2. Select 'Add to Home Screen'.",
             batTitle: "🔋 Battery Data",
+            carBrand: "Brand",
+            customBrand: "None",
+            carModel: "Model",
+            customCar: "Custom",
+            bevGroup: "BEV - 100% Electric",
+            phevGroup: "PHEV - Plug-in Hybrid",
             batNominal: "Nominal Capacity",
             batHealth: "Battery Health (SoH)",
             winTitle: "🔌 Usage Window",
@@ -451,8 +561,6 @@
             winMin: "Final / Min Charge",
             effTitle: "⚙️ Efficiency / Consumption",
             effElec: "Electric Consumption",
-            effSync: "↕️ Synchronized Equivalence ↕️",
-            effMech: "Mechanical Consumption",
             resTotal: "Total 100%",
             resWindow: "In Window",
             resPer1: "Per 1%",
@@ -460,23 +568,116 @@
         }
     };
 
+    // --- LÓGICA DE INSTALAÇÃO (PWA) ---
+    let deferredPrompt;
+    const btnInstall = document.getElementById('btn-install');
+
+    const isIos = () => /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+    const isIosInstalled = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+
+    if (isIos() && !isIosInstalled()) {
+        btnInstall.style.display = 'block';
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        btnInstall.style.display = 'block';
+    });
+
+    btnInstall.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') btnInstall.style.display = 'none';
+            deferredPrompt = null;
+        } else if (isIos()) {
+            const lang = localStorage.getItem('veCalcLang') || (navigator.language.startsWith('pt') ? 'pt' : 'en');
+            alert(dicionario[lang].iosAlert);
+        }
+    });
+
+    // --- LÓGICA DE SELEÇÃO DE MARCA/MODELO ---
+    const brandSelect = document.getElementById('brandSelect');
+    const carModelSelect = document.getElementById('carModelSelect');
+
+    function carregarModelosDaMarca(marcaId) {
+        const lang = localStorage.getItem('veCalcLang') || (navigator.language.startsWith('pt') ? 'pt' : 'en');
+        const modeloAtual = carModelSelect.value;
+        
+        carModelSelect.innerHTML = `<option value="custom" data-i18n="customCar">${dicionario[lang].customCar}</option>`;
+
+        if (marcaId && marcaId !== 'custom' && bdCarros[marcaId]) {
+            const dados = bdCarros[marcaId];
+
+            if (dados.bev && dados.bev.length > 0) {
+                const optGroup = document.createElement('optgroup');
+                optGroup.label = dicionario[lang].bevGroup;
+                dados.bev.forEach(carro => {
+                    const opt = document.createElement('option');
+                    opt.value = carro.id;
+                    opt.setAttribute('data-cap', carro.cap);
+                    opt.textContent = carro.label;
+                    optGroup.appendChild(opt);
+                });
+                carModelSelect.appendChild(optGroup);
+            }
+
+            if (dados.phev && dados.phev.length > 0) {
+                const optGroup = document.createElement('optgroup');
+                optGroup.label = dicionario[lang].phevGroup;
+                dados.phev.forEach(carro => {
+                    const opt = document.createElement('option');
+                    opt.value = carro.id;
+                    opt.setAttribute('data-cap', carro.cap);
+                    opt.textContent = carro.label;
+                    optGroup.appendChild(opt);
+                });
+                carModelSelect.appendChild(optGroup);
+            }
+        }
+
+        // Tenta restaurar a seleção anterior se ainda existir na lista nova
+        if (Array.from(carModelSelect.options).some(o => o.value === modeloAtual)) {
+            carModelSelect.value = modeloAtual;
+        } else {
+            carModelSelect.value = 'custom';
+        }
+    }
+
+    brandSelect.addEventListener('change', (e) => {
+        carregarModelosDaMarca(e.target.value);
+        carModelSelect.value = 'custom';
+        salvarDados();
+    });
+
+    carModelSelect.addEventListener('change', (e) => {
+        if (e.target.value !== 'custom') {
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            batSizeNum.value = parseFloat(selectedOption.getAttribute('data-cap')).toFixed(1);
+            calcular();
+        } else {
+            salvarDados();
+        }
+    });
+
     // --- FUNÇÕES DE IDIOMA ---
     function mudarIdioma(lang) {
-        // Salva a escolha
         localStorage.setItem('veCalcLang', lang);
         document.documentElement.lang = lang === 'pt' ? 'pt-BR' : 'en-US';
 
-        // Atualiza os botões (visual ativo)
         document.getElementById('btn-pt').classList.toggle('active', lang === 'pt');
         document.getElementById('btn-en').classList.toggle('active', lang === 'en');
 
-        // Atualiza todos os textos com base nos atributos data-i18n
         document.querySelectorAll('[data-i18n]').forEach(elemento => {
             const chave = elemento.getAttribute('data-i18n');
             if (dicionario[lang][chave]) {
                 elemento.textContent = dicionario[lang][chave];
             }
         });
+
+        // Recarrega a lista de modelos para traduzir os OptGroups (BEV / PHEV)
+        carregarModelosDaMarca(brandSelect.value);
     }
 
     function inicializarIdioma() {
@@ -484,29 +685,26 @@
         if (idiomaSalvo) {
             mudarIdioma(idiomaSalvo);
         } else {
-            // Detecta o idioma do sistema/navegador (se não for PT, vai para EN)
             const idiomaNavegador = navigator.language || navigator.userLanguage;
             mudarIdioma(idiomaNavegador.startsWith('pt') ? 'pt' : 'en');
         }
     }
 
     // --- LÓGICA DO SIMULADOR ---
-    const batSizeNum = document.getElementById('batSizeNum'), batSizeSlider = document.getElementById('batSizeSlider');
-    const batHealthNum = document.getElementById('batHealthNum'), batHealthSlider = document.getElementById('batHealthSlider');
+    const batSizeNum = document.getElementById('batSizeNum');
+    const batHealthNum = document.getElementById('batHealthNum');
     const cargaMaxNum = document.getElementById('cargaMaxNum'), cargaMaxSlider = document.getElementById('cargaMaxSlider');
     const cargaMinNum = document.getElementById('cargaMinNum'), cargaMinSlider = document.getElementById('cargaMinSlider');
     const consKwhNum = document.getElementById('consKwhNum'), consKwhSlider = document.getElementById('consKwhSlider');
-    const consHphNum = document.getElementById('consHphNum'), consHphSlider = document.getElementById('consHphSlider');
-    
-    const resTotal = document.getElementById('resTotal');
-    const resJanela = document.getElementById('resJanela');
-    const resPercent = document.getElementById('resPercent');
+    const consHphNum = document.getElementById('consHphNum');
 
     const KWH_TO_HPH = 1.34102;
     const HPH_TO_KWH = 0.7457;
 
     function salvarDados() {
         const dados = {
+            carBrand: brandSelect.value,
+            carModel: carModelSelect.value,
             batSize: batSizeNum.value,
             batHealth: batHealthNum.value,
             cargaMax: cargaMaxNum.value,
@@ -522,19 +720,22 @@
         if (saved) {
             const dados = JSON.parse(saved);
             
-            batSizeNum.value = dados.batSize;
+            if (dados.carBrand) brandSelect.value = dados.carBrand;
+            carregarModelosDaMarca(brandSelect.value);
+            if (dados.carModel) carModelSelect.value = dados.carModel;
+
+            batSizeNum.value = parseFloat(dados.batSize).toFixed(1);
             batHealthNum.value = dados.batHealth;
             cargaMaxNum.value = dados.cargaMax;
             cargaMinNum.value = dados.cargaMin;
-            consKwhNum.value = dados.consKwh;
-            consHphNum.value = dados.consHph;
+            consKwhNum.value = parseFloat(dados.consKwh).toFixed(1);
+            consHphNum.value = parseFloat(dados.consHph).toFixed(1);
 
-            batSizeSlider.value = dados.batSize;
-            batHealthSlider.value = dados.batHealth;
             cargaMaxSlider.value = dados.cargaMax;
             cargaMinSlider.value = dados.cargaMin;
             consKwhSlider.value = dados.consKwh;
-            consHphSlider.value = dados.consHph;
+        } else {
+            carregarModelosDaMarca('custom');
         }
     }
 
@@ -549,43 +750,48 @@
 
         if (consKwh > 0 && capacidadeUtil > 0) {
             const autonomiaTotal = (capacidadeUtil / consKwh) * 100;
-            resTotal.textContent = autonomiaTotal.toFixed(1);
+            document.getElementById('resTotal').textContent = autonomiaTotal.toFixed(1);
 
             const percentualJanela = Math.max(0, cMax - cMin) / 100;
             const autonomiaJanela = autonomiaTotal * percentualJanela;
-            resJanela.textContent = autonomiaJanela.toFixed(1);
+            document.getElementById('resJanela').textContent = autonomiaJanela.toFixed(1);
 
             const kmPorPorcento = autonomiaTotal / 100;
-            resPercent.textContent = kmPorPorcento.toFixed(2);
+            document.getElementById('resPercent').textContent = kmPorPorcento.toFixed(2);
         } else {
-            resTotal.textContent = "0.0";
-            resJanela.textContent = "0.0";
-            resPercent.textContent = "0.00";
+            document.getElementById('resTotal').textContent = "0.0";
+            document.getElementById('resJanela').textContent = "0.0";
+            document.getElementById('resPercent').textContent = "0.00";
         }
 
         salvarDados();
     }
 
-    function vincularInputs(inputNum, inputSlider, callbackAdicional) {
+    batSizeNum.addEventListener('input', () => {
+        carModelSelect.value = 'custom';
+        brandSelect.value = 'custom';
+        calcular();
+    });
+    
+    batHealthNum.addEventListener('input', calcular);
+
+    function vincularJanela(inputNum, inputSlider, callbackVerificacao) {
         inputSlider.addEventListener('input', (e) => {
             inputNum.value = e.target.value;
-            if(callbackAdicional) callbackAdicional('slider');
+            callbackVerificacao();
             calcular();
         });
         inputNum.addEventListener('input', (e) => {
             let val = parseFloat(e.target.value);
             if (!isNaN(val)) {
                 inputSlider.value = val;
-                if(callbackAdicional) callbackAdicional('num');
+                callbackVerificacao();
                 calcular();
             }
         });
     }
 
-    vincularInputs(batSizeNum, batSizeSlider);
-    vincularInputs(batHealthNum, batHealthSlider);
-
-    vincularInputs(cargaMaxNum, cargaMaxSlider, () => {
+    vincularJanela(cargaMaxNum, cargaMaxSlider, () => {
         let max = parseInt(cargaMaxNum.value) || 0;
         let min = parseInt(cargaMinNum.value) || 0;
         if (max < min) {
@@ -594,7 +800,7 @@
         }
     });
 
-    vincularInputs(cargaMinNum, cargaMinSlider, () => {
+    vincularJanela(cargaMinNum, cargaMinSlider, () => {
         let max = parseInt(cargaMaxNum.value) || 0;
         let min = parseInt(cargaMinNum.value) || 0;
         if (min > max) {
@@ -603,21 +809,32 @@
         }
     });
 
-    vincularInputs(consKwhNum, consKwhSlider, (origem) => {
-        let kwh = parseFloat(consKwhNum.value) || 0;
-        let hphCalculado = (kwh * KWH_TO_HPH).toFixed(2);
-        consHphNum.value = hphCalculado;
-        consHphSlider.value = hphCalculado;
+    consKwhSlider.addEventListener('input', (e) => {
+        let kwh = parseFloat(e.target.value) || 0;
+        consKwhNum.value = kwh.toFixed(1);
+        consHphNum.value = (kwh * KWH_TO_HPH).toFixed(1);
+        calcular();
     });
 
-    vincularInputs(consHphNum, consHphSlider, (origem) => {
-        let hph = parseFloat(consHphNum.value) || 0;
-        let kwhCalculado = (hph * HPH_TO_KWH).toFixed(2);
-        consKwhNum.value = kwhCalculado;
-        consKwhSlider.value = kwhCalculado;
+    consKwhNum.addEventListener('input', (e) => {
+        let val = parseFloat(e.target.value);
+        if (!isNaN(val)) {
+            consKwhSlider.value = val;
+            consHphNum.value = (val * KWH_TO_HPH).toFixed(1);
+            calcular();
+        }
     });
 
-    // Inicia idioma, carrega dados e faz primeiro cálculo
+    consHphNum.addEventListener('input', (e) => {
+        let val = parseFloat(e.target.value);
+        if (!isNaN(val)) {
+            let kwhVal = (val * HPH_TO_KWH).toFixed(1);
+            consKwhNum.value = kwhVal;
+            consKwhSlider.value = kwhVal;
+            calcular();
+        }
+    });
+
     inicializarIdioma();
     carregarDados();
     calcular();

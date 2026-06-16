@@ -363,35 +363,30 @@
     <div class="card">
         <div class="card-title" data-i18n="batTitle">🔋 Dados da Bateria</div>
         
-        <!-- Dropdown dos Modelos -->
-        <div class="input-block" style="margin-bottom: 16px;">
-            <div class="input-header" style="margin-bottom: 8px;">
-                <label for="carModelSelect" data-i18n="carModel">Modelo do Veículo</label>
+        <!-- Seletores de Marca e Modelo -->
+        <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+            <div class="input-block" style="flex: 1; margin-bottom: 0;">
+                <div class="input-header" style="margin-bottom: 8px;">
+                    <label for="brandSelect" data-i18n="carBrand">Marca</label>
+                </div>
+                <select id="brandSelect" class="car-select">
+                    <option value="custom" data-i18n="customBrand">Nenhuma</option>
+                    <option value="byd">BYD</option>
+                    <option value="gwm">GWM</option>
+                    <option value="geely">Geely</option>
+                    <option value="zeekr">Zeekr</option>
+                </select>
             </div>
-            <select id="carModelSelect" class="car-select">
-                <option value="custom" data-i18n="customCar">Personalizado</option>
-                <optgroup label="BEV - 100% Elétrico">
-                    <option value="dolphin_mini" data-cap="38.0">BYD Dolphin Mini (38.0 kWh)</option>
-                    <option value="dolphin_ev" data-cap="44.9">BYD Dolphin EV / GS (44.9 kWh)</option>
-                    <option value="dolphin_plus" data-cap="60.4">BYD Dolphin Plus (60.4 kWh)</option>
-                    <option value="yuan_pro" data-cap="45.1">BYD Yuan Pro (45.1 kWh)</option>
-                    <option value="yuan_plus" data-cap="60.5">BYD Yuan Plus / Atto 3 (60.5 kWh)</option>
-                    <option value="seal" data-cap="82.5">BYD Seal (82.5 kWh)</option>
-                    <option value="han" data-cap="85.4">BYD Han (85.4 kWh)</option>
-                    <option value="tan_23" data-cap="86.4">BYD Tan até 2023 (86.4 kWh)</option>
-                    <option value="tan_24" data-cap="108.8">BYD Tan 2024+ (108.8 kWh)</option>
-                </optgroup>
-                <optgroup label="PHEV - Híbrido Plug-in">
-                    <option value="king_gl" data-cap="8.3">BYD King GL (8.3 kWh)</option>
-                    <option value="king_gs" data-cap="18.3">BYD King GS (18.3 kWh)</option>
-                    <option value="song_pro_gl" data-cap="12.9">BYD Song Pro GL (12.9 kWh)</option>
-                    <option value="song_pro_gs" data-cap="18.3">BYD Song Pro GS (18.3 kWh)</option>
-                    <option value="song_plus_26" data-cap="18.3">BYD Song Plus até 2026 (18.3 kWh)</option>
-                    <option value="song_plus_27" data-cap="26.6">BYD Song Plus 2027+ (26.6 kWh)</option>
-                    <option value="shark" data-cap="29.6">BYD Shark Picape (29.6 kWh)</option>
-                </optgroup>
-            </select>
-            </select>
+
+            <div class="input-block" style="flex: 2; margin-bottom: 0;">
+                <div class="input-header" style="margin-bottom: 8px;">
+                    <label for="carModelSelect" data-i18n="carModel">Modelo</label>
+                </div>
+                <select id="carModelSelect" class="car-select">
+                    <option value="custom" data-i18n="customCar">Personalizado</option>
+                    <!-- Preenchido via JavaScript -->
+                </select>
+            </div>
         </div>
 
         <div class="input-block" style="margin-bottom: 12px;">
@@ -407,7 +402,7 @@
             <div class="input-header" style="margin-bottom: 0;">
                 <label for="batHealthNum" data-i18n="batHealth">Saúde da Bateria (SoH)</label>
                 <div class="value-display">
-                    <input type="number" id="batHealthNum" value="95" step="1" min="50" max="100">
+                    <input type="number" id="batHealthNum" value="99" step="1" min="50" max="100">
                     <span>%</span>
                 </div>
             </div>
@@ -440,7 +435,6 @@
 
     <div class="card">
         <div class="card-title" data-i18n="effTitle">⚙️ Eficiência / Consumo</div>
-        
         <div class="input-block">
             <div class="input-header">
                 <label for="consKwhNum" data-i18n="effElec">Consumo Elétrico</label>
@@ -481,6 +475,61 @@
 </div>
 
 <script>
+    // --- BANCO DE DADOS DE VEÍCULOS ---
+    const bdCarros = {
+        byd: {
+            bev: [
+                { id: "dolphin_mini", cap: 38.0, label: "Dolphin Mini (38.0 kWh)" },
+                { id: "dolphin_ev", cap: 44.9, label: "Dolphin EV / GS (44.9 kWh)" },
+                { id: "dolphin_plus", cap: 60.4, label: "Dolphin Plus (60.4 kWh)" },
+                { id: "yuan_pro", cap: 45.1, label: "Yuan Pro (45.1 kWh)" },
+                { id: "yuan_plus", cap: 60.5, label: "Yuan Plus (60.5 kWh)" },
+                { id: "seal", cap: 82.5, label: "Seal (82.5 kWh)" },
+                { id: "han", cap: 85.4, label: "Han (85.4 kWh)" },
+                { id: "tan_23", cap: 86.4, label: "Tan até 2023 (86.4 kWh)" },
+                { id: "tan_24", cap: 108.8, label: "Tan 2024+ (108.8 kWh)" }
+            ],
+            phev: [
+                { id: "king_gl", cap: 8.3, label: "King GL (8.3 kWh)" },
+                { id: "song_pro_gl", cap: 12.9, label: "Song Pro GL (12.9 kWh)" },
+                { id: "king_gs", cap: 18.3, label: "King GS (18.3 kWh)" },
+                { id: "song_pro_gs", cap: 18.3, label: "Song Pro GS (18.3 kWh)" },
+                { id: "song_plus_26", cap: 18.3, label: "Song Plus até 2026 (18.3 kWh)" },
+                { id: "song_plus_27", cap: 26.6, label: "Song Plus 2027+ (26.6 kWh)" },
+                { id: "shark", cap: 29.6, label: "Shark Picape (29.6 kWh)" }
+            ]
+        },
+        gwm: {
+            bev: [
+                { id: "ora_03_skin", cap: 48.0, label: "Ora 03 Skin (48.0 kWh)" },
+                { id: "ora_03_gt", cap: 63.0, label: "Ora 03 GT (63.0 kWh)" }
+            ],
+            phev: [
+                { id: "haval_h6_phev", cap: 34.0, label: "Haval H6 PHEV (34.0 kWh)" },
+                { id: "wey_07", cap: 42.5, label: "Wey 07 (42.5 kWh)" }
+            ]
+        },
+        geely: {
+            bev: [
+                { id: "ex2", cap: 39.4, label: "EX2 (39.4 kWh)" },
+                { id: "ex2_2026", cap: 47.0, label: "EX2 2026+ (47.0 kWh)" }
+            ],
+            phev: [
+                { id: "ex5", cap: 18.4, label: "EX5 (18.4 kWh)" },
+                { id: "ex5_ultra", cap: 29.8, label: "EX5 Ultra (29.8 kWh)" }
+            ]
+        },
+        zeekr: {
+            bev: [
+                { id: "zeekr_x", cap: 66.0, label: "Zeekr X (66.0 kWh)" },
+                { id: "zeekr_007", cap: 75.6, label: "Zeekr 007 (75.6 kWh)" },
+                { id: "zeekr_007_lr", cap: 100.0, label: "Zeekr 007 Long Range (100.0 kWh)" },
+                { id: "zeekr_001", cap: 100.0, label: "Zeekr 001 (100.0 kWh)" }
+            ],
+            phev: []
+        }
+    };
+
     // --- DICIONÁRIO DE TRADUÇÕES ---
     const dicionario = {
         pt: {
@@ -489,8 +538,12 @@
             installApp: "📲 Instalar",
             iosAlert: "Para instalar no iPhone:\n\n1. Toque no ícone de Compartilhar (quadrado com seta para cima) na barra inferior do Safari.\n2. Escolha 'Adicionar à Tela de Início'.",
             batTitle: "🔋 Dados da Bateria",
-            carModel: "Modelo do Veículo",
+            carBrand: "Marca",
+            customBrand: "Nenhuma",
+            carModel: "Modelo",
             customCar: "Personalizado",
+            bevGroup: "BEV - 100% Elétrico",
+            phevGroup: "PHEV - Híbrido Plug-in",
             batNominal: "Capacidade Nominal",
             batHealth: "Saúde da Bateria (SoH)",
             winTitle: "🔌 Janela de Utilização",
@@ -509,8 +562,12 @@
             installApp: "📲 Install",
             iosAlert: "To install on iPhone:\n\n1. Tap the Share icon (square with an up arrow) at the bottom of Safari.\n2. Select 'Add to Home Screen'.",
             batTitle: "🔋 Battery Data",
-            carModel: "Vehicle Model",
+            carBrand: "Brand",
+            customBrand: "None",
+            carModel: "Model",
             customCar: "Custom",
+            bevGroup: "BEV - 100% Electric",
+            phevGroup: "PHEV - Plug-in Hybrid",
             batNominal: "Nominal Capacity",
             batHealth: "Battery Health (SoH)",
             winTitle: "🔌 Usage Window",
@@ -529,10 +586,7 @@
     let deferredPrompt;
     const btnInstall = document.getElementById('btn-install');
 
-    const isIos = () => {
-        const userAgent = window.navigator.userAgent.toLowerCase();
-        return /iphone|ipad|ipod/.test(userAgent);
-    };
+    const isIos = () => /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
     const isIosInstalled = () => ('standalone' in window.navigator) && (window.navigator.standalone);
 
     if (isIos() && !isIosInstalled()) {
@@ -549,13 +603,75 @@
         if (deferredPrompt) {
             deferredPrompt.prompt();
             const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                btnInstall.style.display = 'none';
-            }
+            if (outcome === 'accepted') btnInstall.style.display = 'none';
             deferredPrompt = null;
         } else if (isIos()) {
             const lang = localStorage.getItem('veCalcLang') || (navigator.language.startsWith('pt') ? 'pt' : 'en');
             alert(dicionario[lang].iosAlert);
+        }
+    });
+
+    // --- LÓGICA DE SELEÇÃO DE MARCA/MODELO ---
+    const brandSelect = document.getElementById('brandSelect');
+    const carModelSelect = document.getElementById('carModelSelect');
+
+    function carregarModelosDaMarca(marcaId) {
+        const lang = localStorage.getItem('veCalcLang') || (navigator.language.startsWith('pt') ? 'pt' : 'en');
+        const modeloAtual = carModelSelect.value;
+        
+        carModelSelect.innerHTML = `<option value="custom" data-i18n="customCar">${dicionario[lang].customCar}</option>`;
+
+        if (marcaId && marcaId !== 'custom' && bdCarros[marcaId]) {
+            const dados = bdCarros[marcaId];
+
+            if (dados.bev && dados.bev.length > 0) {
+                const optGroup = document.createElement('optgroup');
+                optGroup.label = dicionario[lang].bevGroup;
+                dados.bev.forEach(carro => {
+                    const opt = document.createElement('option');
+                    opt.value = carro.id;
+                    opt.setAttribute('data-cap', carro.cap);
+                    opt.textContent = carro.label;
+                    optGroup.appendChild(opt);
+                });
+                carModelSelect.appendChild(optGroup);
+            }
+
+            if (dados.phev && dados.phev.length > 0) {
+                const optGroup = document.createElement('optgroup');
+                optGroup.label = dicionario[lang].phevGroup;
+                dados.phev.forEach(carro => {
+                    const opt = document.createElement('option');
+                    opt.value = carro.id;
+                    opt.setAttribute('data-cap', carro.cap);
+                    opt.textContent = carro.label;
+                    optGroup.appendChild(opt);
+                });
+                carModelSelect.appendChild(optGroup);
+            }
+        }
+
+        // Tenta restaurar a seleção anterior se ainda existir na lista nova
+        if (Array.from(carModelSelect.options).some(o => o.value === modeloAtual)) {
+            carModelSelect.value = modeloAtual;
+        } else {
+            carModelSelect.value = 'custom';
+        }
+    }
+
+    brandSelect.addEventListener('change', (e) => {
+        carregarModelosDaMarca(e.target.value);
+        carModelSelect.value = 'custom';
+        salvarDados();
+    });
+
+    carModelSelect.addEventListener('change', (e) => {
+        if (e.target.value !== 'custom') {
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            batSizeNum.value = parseFloat(selectedOption.getAttribute('data-cap')).toFixed(1);
+            calcular();
+        } else {
+            salvarDados();
         }
     });
 
@@ -573,6 +689,9 @@
                 elemento.textContent = dicionario[lang][chave];
             }
         });
+
+        // Recarrega a lista de modelos para traduzir os OptGroups (BEV / PHEV)
+        carregarModelosDaMarca(brandSelect.value);
     }
 
     function inicializarIdioma() {
@@ -586,13 +705,10 @@
     }
 
     // --- LÓGICA DO SIMULADOR ---
-    const carModelSelect = document.getElementById('carModelSelect');
     const batSizeNum = document.getElementById('batSizeNum');
     const batHealthNum = document.getElementById('batHealthNum');
-    
     const cargaMaxNum = document.getElementById('cargaMaxNum'), cargaMaxSlider = document.getElementById('cargaMaxSlider');
     const cargaMinNum = document.getElementById('cargaMinNum'), cargaMinSlider = document.getElementById('cargaMinSlider');
-    
     const consKwhNum = document.getElementById('consKwhNum'), consKwhSlider = document.getElementById('consKwhSlider');
     const consHphNum = document.getElementById('consHphNum');
 
@@ -601,6 +717,7 @@
 
     function salvarDados() {
         const dados = {
+            carBrand: brandSelect.value,
             carModel: carModelSelect.value,
             batSize: batSizeNum.value,
             batHealth: batHealthNum.value,
@@ -617,7 +734,10 @@
         if (saved) {
             const dados = JSON.parse(saved);
             
+            if (dados.carBrand) brandSelect.value = dados.carBrand;
+            carregarModelosDaMarca(brandSelect.value);
             if (dados.carModel) carModelSelect.value = dados.carModel;
+
             batSizeNum.value = parseFloat(dados.batSize).toFixed(1);
             batHealthNum.value = dados.batHealth;
             cargaMaxNum.value = dados.cargaMax;
@@ -628,6 +748,8 @@
             cargaMaxSlider.value = dados.cargaMax;
             cargaMinSlider.value = dados.cargaMin;
             consKwhSlider.value = dados.consKwh;
+        } else {
+            carregarModelosDaMarca('custom');
         }
     }
 
@@ -659,22 +781,12 @@
         salvarDados();
     }
 
-    // Ações do Dropdown de Carros
-    carModelSelect.addEventListener('change', (e) => {
-        if (e.target.value !== 'custom') {
-            const selectedOption = e.target.options[e.target.selectedIndex];
-            const capacity = selectedOption.getAttribute('data-cap');
-            batSizeNum.value = parseFloat(capacity).toFixed(1);
-            calcular();
-        }
-    });
-
-    // Se o usuário editar a bateria manualmente, muda para Personalizado
-    batSizeNum.addEventListener('input', (e) => {
+    batSizeNum.addEventListener('input', () => {
         carModelSelect.value = 'custom';
+        brandSelect.value = 'custom';
         calcular();
     });
-
+    
     batHealthNum.addEventListener('input', calcular);
 
     function vincularJanela(inputNum, inputSlider, callbackVerificacao) {
