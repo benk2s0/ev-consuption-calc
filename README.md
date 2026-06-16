@@ -6,7 +6,7 @@ A sleek, mobile-first, and highly interactive Web Application designed to calcul
 
 * 📱 **Mobile-First & PWA Ready:** Beautiful, app-like interface that can be installed directly to your iOS or Android home screen (includes `manifest.json` and Apple Touch Icons).
 * ⬇️ **Smart PWA Installation:** Built-in "Install" button that triggers native prompts on Android and provides guided instructions for iOS users.
-* 🚗 **Vehicle Model Selector:** Choose from a list of popular EVs and PHEVs (e.g., BYD line-up) to automatically set the correct nominal battery capacity. Switches to "Custom" if edited manually.
+* 🚗 **Dynamic Brand & Model Selector:** Multi-level dropdown system populated with an up-to-date database of major EV manufacturers in Brazil (**BYD, GWM, Geely, and Zeekr**). It automatically sets the correct nominal battery capacity and switches to "Custom" if edited manually.
 * 🔋 **Battery Health (SoH) Integration:** Accurately calculates usable battery capacity based on the battery's current State of Health.
 * 🔌 **Daily Usage Window:** Set your minimum and maximum charging limits (e.g., 20% to 80%) to see your practical daily range without degrading the battery. Includes safety logic to prevent invalid ranges.
 * ⚙️ **Dual Consumption Sync:** Instantly converts and syncs consumption metrics between **Electrical (kWh/100km)** and **Equivalent (HPh/100km)** in real-time with a streamlined, clean UI.
@@ -19,7 +19,7 @@ A sleek, mobile-first, and highly interactive Web Application designed to calcul
 Since this project is built with vanilla web technologies, there are no dependencies or complex setups required.
 
 1. Access: https://benk2s0.github.io/ev-consuption-calc/
-2. Select your vehicle model from the dropdown or manually input your battery data.
+2. Select your vehicle's Brand and Model from the dropdowns to automatically load the battery capacity (or input it manually).
 3. Adjust the sliders or input numbers directly to see real-time estimations!
 
 ### Running as a Web App (PWA)
@@ -31,7 +31,7 @@ Since this project is built with vanilla web technologies, there are no dependen
 
 * **HTML5** (Semantic structure)
 * **CSS3** (Custom variables, Flexbox, responsive design, modern UI/UX)
-* **Vanilla JavaScript** (DOM manipulation, Event Listeners, Local Storage, i18n logic, Dropdown logic)
+* **Vanilla JavaScript** (DOM manipulation, Event Listeners, Local Storage, i18n logic, Cascading Dropdowns with JSON data)
 
 ## 📁 Project Structure
 
@@ -39,7 +39,7 @@ Since this project is built with vanilla web technologies, there are no dependen
 ├── index.html       # Main application file (UI + Logic + Styles + i18n + Data)
 ├── manifest.json    # PWA configuration for Android
 ├── icone.png        # 512x512 App Icon for iOS/Android home screens
-└── README.md        # Project documentation 
+└── README.md        # Project documentation
 ```
 
 ## 👨‍💻 Author
